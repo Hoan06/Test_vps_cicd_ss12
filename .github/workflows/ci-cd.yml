@@ -1,0 +1,83 @@
+name: CI/CD Spring Boot CNTT2
+on:
+  push:
+    branches:
+      - '**'
+    pull_request:
+      branches:
+        - main
+jobs:
+  build:
+    name: Xây dựng và kiểm thử ứng dụng Spring Boot
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kiểm tra source code
+        uses: actions/checkout@v7
+
+      - name: Thiết lập môi trường Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cấp quyền thực thi cho gradlew
+        run: chmod +x gradlew
+
+      - name: Chạy kiểm thử
+        run: ./gradlew test
+
+      - name: Đóng gói ứng dụng Spring Boot
+        run: ./gradlew bootJar
+
+      - name: Đăng nhập Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Đóng gói Docker image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/test_cicd_backend:latest \
+            .
+
+      - name: Đẩy Docker image lên Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/test_cicd_backend:latest
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Triển khai ứng dụng tới VPS
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/test-ci-cd-backend-app
+            cd ~/test-ci-cd-backend-app
+            if [ ! -d "test_cicd_backend" ]; then
+            git clone https://github.com/haibtrikkei/test_cicd_backend.git
+            else
+            cd test_cicd_backend
+            git pull origin main
+            fi
+            
+            cd ~/test-ci-cd-backend-app/test_cicd_backend
+            
+            docker compose pull test_cicd_backend
+            
+            docker compose up -d test_cicd_backend
+            
+            docker compose ps
+          
+
+
+
+
+
+
+

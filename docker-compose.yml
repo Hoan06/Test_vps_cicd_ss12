@@ -1,0 +1,25 @@
+services:
+  room-backend:
+    image: hoanhuy06/test_cicd_backend:latest
+    restart: always
+    ports:
+      - "9090:9090"
+    environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://room-db:3306/room_management_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: 13032006
+    depends_on:
+      - room-db
+  room-db:
+    image: mysql:8.4
+    container_name: room-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 13032006
+      MYSQL_DATABASE: room_management_db
+#    ports:
+#        - "3307:3306"
+    volumes:
+      - room-db-data:/var/lib/mysql
+volumes:
+  room-db-data:
