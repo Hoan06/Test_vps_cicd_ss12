@@ -60,7 +60,7 @@ jobs:
             mkdir -p ~/test-ci-cd-backend-app
             cd ~/test-ci-cd-backend-app
             if [ ! -d "test_cicd_backend" ]; then
-            git clone https://github.com/haibtrikkei/test_cicd_backend.git
+            git clone https://github.com/Hoan06/Test_vps_cicd_ss12.git
             else
             cd test_cicd_backend
             git pull origin main
@@ -68,9 +68,9 @@ jobs:
             
             cd ~/test-ci-cd-backend-app/test_cicd_backend
             
-            docker compose pull test_cicd_backend
+            docker compose pull room-backend
             
-            docker compose up -d test_cicd_backend
+            docker compose up -d room-backend
             
             docker compose ps
           

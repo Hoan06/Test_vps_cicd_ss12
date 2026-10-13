@@ -23,7 +23,7 @@ public class RoomController {
         int size = 3;
         return new ResponseEntity<>(new ApiDataResponse<>(
                 true,
-                "Lấy danh sách thành công",
+                "Lấy danh sách thành công rồi nhé!",
                 roomService.getAlls(page,size),
                 null,
                 HttpStatus.OK
